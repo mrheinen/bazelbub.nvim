@@ -1,6 +1,8 @@
 # bazelbub.nvim
 A simple neovim plugin to run bazel test and bazel build
 
+![Screenshot](https://github.com/mrheinen/bazelbub.nvim/blob/main/screenshot/screenshot.png?raw=true)
+
 # Installation
 ## Using lazy.nvim
 
