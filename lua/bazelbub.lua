@@ -53,12 +53,13 @@ function showFloatWindow(title, content)
   api.nvim_set_option_value("readonly", true, { buf = float.bufnr })
 end
 
-function getBazelTestDependencies(file)
-    local executeCommand = string.format("bazel query 'kind(test, rdeps(//..., %s))' --keep_going; echo $?", file)
-
+--- Run the given command and return the output and exit code
+-- @param the command to run
+function runCommand(executeCommand)
+    executeCommand = string.format("%s; echo $?", executeCommand)
     local handle = io.popen(executeCommand)
-    local output = {}
 
+    local output = {}
     for line in handle:lines() do
         table.insert(output, line)
     end
@@ -70,43 +71,6 @@ function getBazelTestDependencies(file)
     local exitCode = tonumber(table.remove(output))
     return output, exitCode
 end
-
-function getBazelAllDependencies(file)
-    local executeCommand = string.format("bazel query 'rdeps(//..., %s)' --keep_going; echo $?", file)
-
-    local handle = io.popen(executeCommand)
-    local output = {}
-
-    for line in handle:lines() do
-        table.insert(output, line)
-    end
-
-    -- Close the handle
-    handle:close()
-
-    -- Get the exit code from the last line of the output
-    local exitCode = tonumber(table.remove(output))
-    return output, exitCode
-end
-
---- Run a single bazel test target
--- @param target The target to run
--- @return The command output and command exit code
-function runSingleBazelTestTarget(target)
-    local executeCommand = string.format("bazel test %s 2>&1; echo $?", target)
-
-    local handle = io.popen(executeCommand)
-    local output = {}
-
-    for line in handle:lines() do
-        table.insert(output, line)
-    end
-
-    handle:close()
-    local exitCode = tonumber(table.remove(output))
-    return output, exitCode
-end
-
 
 local M = {}
 
@@ -120,8 +84,7 @@ end
 -- Get the test targets for the file in the current buffer.
 function M.getTestTargets()
   local fpa_rel = plenary.path:new(vim.api.nvim_buf_get_name(0)):make_relative()
-  local result, exit = getBazelTestDependencies(fpa_rel)
-
+  local result, exit = runCommand(string.format("bazel query 'kind(test, rdeps(//..., %s))' --keep_going", fpa_rel))
   local dBuffer = ""
   local title = "Bazel targets"
   if exit > 0 then
@@ -139,8 +102,7 @@ end
 -- Get the build targets for the file in the current buffer.
 function M.getBuildTargets()
   local fpa_rel = plenary.path:new(vim.api.nvim_buf_get_name(0)):make_relative()
-  local result, exit = getBazelAllDependencies(fpa_rel)
-
+  local result, exit = runCommand(string.format("bazel query 'rdeps(//..., %s)' --keep_going", fpa_rel))
   local dBuffer = ""
   local title = "Bazel targets"
   if exit > 0 then
@@ -158,7 +120,7 @@ end
 -- Run bazel test on the targets for the current file.
 function M.runTestTargets()
   local fpa_rel = plenary.path:new(vim.api.nvim_buf_get_name(0)):make_relative()
-  local targets, exit = getBazelTestDependencies(fpa_rel)
+  local targets, exit = runCommand(string.format("bazel query 'kind(test, rdeps(//..., %s))' --keep_going", fpa_rel))
   if exit > 0 then
     log.error("Bazel failed")
     return
@@ -193,7 +155,7 @@ end
 -- Build all dependencies for the current file.
 function M.buildTargets()
   local fpa_rel = plenary.path:new(vim.api.nvim_buf_get_name(0)):make_relative()
-  local targets, exit = getBazelAllDependencies(fpa_rel)
+  local targets, exit = runCommand(string.format("bazel query 'rdeps(//..., %s)' --keep_going", fpa_rel))
   if exit > 0 then
     log.error("Bazel failed")
     return
