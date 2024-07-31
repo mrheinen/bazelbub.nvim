@@ -6,3 +6,7 @@ vim.api.nvim_create_user_command("BazelShowBuildTargets", require('bazelbub').ge
 vim.api.nvim_create_user_command("BazelTest", require('bazelbub').runTestTargets, {})
 -- RUn bazel build on all build targets.
 vim.api.nvim_create_user_command("BazelBuild", require('bazelbub').buildTargets, {})
+-- Run gazelle
+vim.api.nvim_create_user_command("BazelGazelle", require('bazelbub').runGazelle, {})
+-- Run gazelle update repos
+vim.api.nvim_create_user_command("BazelGazelleUpdate", require('bazelbub').runGazelleUpdateRepos, {})

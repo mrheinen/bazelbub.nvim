@@ -81,6 +81,38 @@ function M.onInsertEnter()
   vim.b.whitespace_lastline = curline
 end
 
+function M.runGazelle()
+  local result, exit = runCommand("bazel run //:gazelle 2>&1")
+  local dBuffer = ""
+  local title = "Gazelle ran successfully"
+  if exit > 0 then
+    dBuffer = "bazel run //:gazelle failed!\n"
+    title = "Gazelle failed"
+  end
+
+  for _, v in pairs(result) do
+    dBuffer = string.format("%s%s\n", dBuffer, v)
+  end
+
+  showFloatWindow(title, vim.split(dBuffer, "\n"))
+end
+
+function M.runGazelleUpdateRepos()
+  local result, exit = runCommand("bazel run //:gazelle-update-repos 2>&1")
+  local dBuffer = ""
+  local title = "Gazelle update repos ran successfully"
+  if exit > 0 then
+    dBuffer = "bazel run //:gazelle-update-repos failed!\n"
+    title = "Gazelle update repos failed"
+  end
+
+  for _, v in pairs(result) do
+    dBuffer = string.format("%s%s\n", dBuffer, v)
+  end
+
+  showFloatWindow(title, vim.split(dBuffer, "\n"))
+end
+
 -- Get the test targets for the file in the current buffer.
 function M.getTestTargets()
   local fpa_rel = plenary.path:new(vim.api.nvim_buf_get_name(0)):make_relative()
