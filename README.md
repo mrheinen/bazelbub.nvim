@@ -10,7 +10,7 @@ Use the following snippet but update the version to the latest release.
 ```
 {
     'mrheinen/bazelbub.nvim',
-    version = "0.1"
+    version = "v0.2"
 }
 ```
 
@@ -21,7 +21,7 @@ Similar to above; use this snippet and update the tag to the latest release.
 ```
 use {
   'mrheinen/bazelbub.nvim',
-  tag = '0.1',
+  tag = 'v0.2',
 }
 ```
 
@@ -44,3 +44,9 @@ first run `:BazelShowTestTargets`
 
 Using `:BazelBuild` you can run "bazel build" against all dependencies of the
 current file. To inspect what the targets are you can use `:BazelShowBuildTargets`
+
+## Runing gazelle
+
+Using `:BazelGazelle` you can run "bazel run //:gazelle" to update your BUILD
+files.  Additionally you can use `:BazelGazelleUpdate` to update your
+dependencies.
